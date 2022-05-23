@@ -9,6 +9,10 @@ struct Coord
   int y{0};
 }
 
+//========================================================================================================================================
+//Task 1. Figures (check overriding type of return value in area methods)
+//========================================================================================================================================
+
 class Figure
 {
   public:
@@ -17,7 +21,7 @@ class Figure
   int virtual area() = 0;
 };
 
-class Circle : public Figure
+class Circle : public final Figure
 {
 private:
 int radius;
@@ -25,32 +29,46 @@ int radius;
 public:
 Circle(int rad) : radius(rad) {}
 
-int area() overrride {return (radius * radius * PI);}
+double area() overrride {return (radius * radius * PI);}
 };
 
 class Parallelogram : public Figure
 {
-private:
+protected:
 Coord a, b, c, d;  //ab - верхняя грань, bc - правая грань и т.д.
 
 public:
 Parallelogram(int ax, ay, bx, by, cx, cy, dx, dy) : a.x(ax), a.y(ay), b.x(bx), b.y(by), c.x(cx), c.y(cy), d.x(dx), d.y(dy) virtual {}
 
-int area() overrride {return (a.y - d.y) * sqrt((c.x - d.x) + (c.y - d.y));} //высота параллелограмма * на нижнюю грань. Верно для всех дочерних классов кроме квадрата.
+double area() overrride {return ((a.y - d.y) * sqrt((c.x - d.x) + (c.y - d.y)));} //высота параллелограмма * на нижнюю грань. Верно для так же для ромба.
 };
 
-class Rectangle : public Parallelogram
+class Rectangle : public final Parallelogram
 {
+public:
+Rectangle(int ax, ay, bx, by, cx, cy, dx, dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
+
+int area() overrride {return ((a.y - d.y) * (c.x - d.x));}
 };
 
-class Square : public Parallelogram
+class Rhombus : public final Parallelogram
 {
+public:
+Rhombus(int ax, ay, bx, by, cx, cy, dx, dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
 };
 
-class Rhombus : public Parallelogram
+
+class Square : public final Parallelogram
 {
+public:
+Square(int ax, ay, bx, by, cx, cy, dx, dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
+
+int area() overrride {return ((b.x-a.x) * (b.x-a.x));}
 };
 
+//========================================================================================================================================
+//Task 2.
+//========================================================================================================================================
 
 int main()
 {
