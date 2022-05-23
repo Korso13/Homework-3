@@ -7,21 +7,21 @@ struct Coord
 {
   int x{0};
   int y{0};
-}
+};
 
 //========================================================================================================================================
 //Task 1. Figures (check overriding type of return value in area methods)
 //========================================================================================================================================
 
-class Figure
+class Figure //base class
 {
   public:
-  Figure() virtual {}
+  Figure() {}
   
-  int virtual area() = 0;
+  virtual int area() = 0;
 };
 
-class Circle : public final Figure
+class Circle final : virtual public Figure 
 {
 private:
 int radius;
@@ -29,41 +29,50 @@ int radius;
 public:
 Circle(int rad) : radius(rad) {}
 
-double area() overrride {return (radius * radius * PI);}
+int area() override {return (radius * radius * PI);}
 };
 
-class Parallelogram : public Figure
+class Parallelogram : virtual public Figure
 {
 protected:
-Coord a, b, c, d;  //ab - верхняя грань, bc - правая грань и т.д.
+Coord a{0,0}, b, c, d;  //ab - верхняя грань, bc - правая грань и т.д.
 
 public:
-Parallelogram(int ax, ay, bx, by, cx, cy, dx, dy) : a.x(ax), a.y(ay), b.x(bx), b.y(by), c.x(cx), c.y(cy), d.x(dx), d.y(dy) virtual {}
+Parallelogram(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy)
+{
+  a.x = ax;
+  a.y = ay;
+  b.x = bx;
+  b.y = by;
+  c.x = cx;
+  c.y = cy; 
+  d.x = dx;
+  d.y = dy; 
+}
 
-double area() overrride {return ((a.y - d.y) * sqrt((c.x - d.x) + (c.y - d.y)));} //высота параллелограмма * на нижнюю грань. Верно для так же для ромба.
+int area() override {return ((a.y - d.y) * sqrt((c.x - d.x) + (c.y - d.y)));} //высота параллелограмма * на нижнюю грань. Верно для так же для ромба.
 };
 
-class Rectangle : public final Parallelogram
+class Rectangle final : virtual public Parallelogram
 {
 public:
-Rectangle(int ax, ay, bx, by, cx, cy, dx, dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
+Rectangle(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
 
-int area() overrride {return ((a.y - d.y) * (c.x - d.x));}
+int area() override {return ((a.y - d.y) * (c.x - d.x));}
 };
 
-class Rhombus : public final Parallelogram
+class Rhombus final : virtual public Parallelogram
 {
 public:
-Rhombus(int ax, ay, bx, by, cx, cy, dx, dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
+Rhombus(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
 };
 
-
-class Square : public final Parallelogram
+class Square final : virtual public Parallelogram
 {
 public:
-Square(int ax, ay, bx, by, cx, cy, dx, dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
+Square(int ax, int ay, int bx, int by, int cx, int cy, int dx, int dy) : Parallelogram(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y) {};
 
-int area() overrride {return ((b.x-a.x) * (b.x-a.x));}
+int area() override {return ((b.x-a.x) * (b.x-a.x));}
 };
 
 //========================================================================================================================================
