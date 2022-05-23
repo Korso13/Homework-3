@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 #define PI 3.14159265358979323846
 
@@ -35,7 +36,7 @@ Coord a, b, c, d;  //ab - верхняя грань, bc - правая гран�
 public:
 Parallelogram(int ax, ay, bx, by, cx, cy, dx, dy) : a.x(ax), a.y(ay), b.x(bx), b.y(by), c.x(cx), c.y(cy), d.x(dx), d.y(dy) virtual {}
 
-int area() overrride {return (a.y - d.y) * (c.x - d.x);} //высота параллелограмма * на нижнюю грань
+int area() overrride {return (a.y - d.y) * sqrt((c.x - d.x) + (c.y - d.y));} //высота параллелограмма * на нижнюю грань. Верно для всех дочерних классов кроме квадрата.
 };
 
 class Rectangle : public Parallelogram
