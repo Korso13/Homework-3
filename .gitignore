@@ -3,6 +3,25 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+#Extra from me
+.vscode/c_cpp_properties.json
+.vscode/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+.vs/
+x64/Debug
+*.tlog
+*.FileListAbsolute.txt
+debug/
+*.obj
+*.recipe
+*.iobj
+*.ipdb
+*.log
+*.pdb
+
 # User-specific files
 *.rsuser
 *.suo
