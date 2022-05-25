@@ -261,6 +261,28 @@ bool operator>(const Fraction& f1, const Fraction& f2)
 //Task 4. Класс Card для игры БлэкДжек
 //========================================================================================================================================
 
+enum Ranks {two = 2, three = 3, four = 4, five = 5, six = 6, seven = 7, eight = 8, nine = 9, ten = 10, jack = 10, queen = 10, king = 10, ace = 1};
+enum Suits{ spades, clubs, diamonds, hearts };
+
+class Card
+{
+protected:
+	Ranks m_value;
+	Suits m_suit;
+	bool m_faceUp{ 0 }; //0 - рубашкой кверху, 1 - в открытую
+public:
+	Card(Ranks value, Suits suit, bool faceUp = 0) : m_value(value), m_suit(suit), m_faceUp(faceUp) {}
+	
+	void Flip()
+	{
+		m_faceUp = !m_faceUp;
+	}
+
+	int GetValue()
+	{
+		return (int)m_value;
+	}
+};
 
 int main()
 {
@@ -329,5 +351,13 @@ int main()
 		std::cout << -f2.getNum() << "/" << f2.getDen() << std::endl;
 	}
 
+	std::cout << "Task 4" << std::endl;
+
+	{
+		Card c1(six, spades, 0);
+		Card c2(king, hearts);
+		std::cout << c1.GetValue() << std::endl;
+		std::cout << c2.GetValue() << std::endl;
+	}
 	return 0;
 }
