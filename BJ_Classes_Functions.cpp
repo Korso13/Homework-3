@@ -11,10 +11,12 @@ void Card::Flip()
 	m_faceUp = !m_faceUp;
 }
 
-Ranks Card::GetValue() const
+
+Ranks Card::GetCardValue() const
 {
 	return m_value;
 }
+
 
 //Hand class methods:
 
@@ -36,13 +38,15 @@ int Hand::GetValue() const
 	int aces{ 0 };
 	for (size_t i = 0; i < m_hand.size(); i++)
 	{
-		if (m_hand[i]->GetValue() == ace)
+		if (m_hand[i]->GetCardValue() == ace)
 		{
 			sum += 11;
 			aces++;
 		}
+		else if (m_hand[i]->GetCardValue() == jack || m_hand[i]->GetCardValue() == queen || m_hand[i]->GetCardValue() == king)
+			sum += 10;
 		else
-			sum += m_hand[i]->GetValue();
+			sum += m_hand[i]->GetCardValue();
 	}
 
 	//if total value exceeds 21 we remove extra 10 points per ace reducing it from 11 to 1. This way aces work even if drawn from index 0 and value exceeds 21 later on

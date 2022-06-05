@@ -4,7 +4,7 @@
 #include "BJ_Classes_Functions.h"
 
 //========================================================================================================================================
-//Task 2. Own endll manipulator
+//Task 2. Making own endll manipulator
 //========================================================================================================================================
 
 std::ostream& endll(std::ostream &out)
@@ -15,7 +15,7 @@ std::ostream& endll(std::ostream &out)
 }
 
 //========================================================================================================================================
-//Task 3. 
+//Task 3. Creating player class for BJ
 //========================================================================================================================================
 /*
 Реализовать класс Player, который наследует от класса GenericPlayer. У этого класса будет 4 метода:
@@ -62,7 +62,7 @@ public:
 };
 
 //========================================================================================================================================
-//Task 4. 
+//Task 4. Creating House class for BJ
 //========================================================================================================================================
 /*
 Реализовать класс House, который представляет дилера. Этот класс наследует от класса GenericPlayer. У него есть 2 метода:
@@ -91,7 +91,7 @@ public:
 
 
 //========================================================================================================================================
-//Task 5. 
+//Task 5. Overloading ostream for BJ purposes
 //========================================================================================================================================
 /*
 Написать перегрузку оператора вывода для класса Card: 
@@ -99,6 +99,94 @@ public:
 • Также для класса GenericPlayer написать перегрузку оператора вывода, который должен отображать имя игрока и его карты,
   а также общую сумму очков его карт.
 */
+
+std::ostream& operator<<(std::ostream &out, const Card& card)
+{
+	if (card.m_faceUp == false)
+	{
+		out << "XX";
+	}
+	else
+	{
+			switch(card.m_value)
+			{
+			case(ace):
+				out << "ace" << " of ";
+				break;
+			case(jack):
+				out << "jack" << " of ";
+				break;
+			case(queen):
+				out << "queen" << " of ";
+				break;
+			case(king):
+				out << "king" << " of ";
+				break;
+			case(ten):
+				out << "ten" << " of ";
+				break;
+			case(nine):
+				out << "nine" << " of ";
+				break;
+			case(eight):
+				out << "eight" << " of ";
+				break;
+			case(seven):
+				out << "seven" << " of ";
+				break;
+			case(six):
+				out << "six" << " of ";
+				break;
+			case(five):
+				out << "five" << " of ";
+				break;
+			case(four):
+				out << "four" << " of ";
+				break;
+			case(three):
+				out << "three" << " of ";
+				break;
+			case(two):
+				out << "two" << " of ";
+				break;
+			default:
+				out << "fail";
+			}
+		
+		switch (card.m_suit)
+		{
+		case(spades):
+			out << "spades";
+			break;
+		case(hearts):
+			out << "hearts";
+			break;
+		case(clubs):
+			out << "clubs";
+			break;
+		case(diamonds):
+			out << "diamonds";
+			break;
+		default:
+			out << "fail";
+		}
+	}
+	return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const GenericPlayer& player)
+{
+	if(player.m_name == "Диллер")
+		out << "Диллер имеет на руках следующие карты: \n";
+	else
+		out << "Игрок " << player.m_name << " имеет на руках следующие карты: \n";
+	for (size_t i = 0; i < player.m_hand.size(); i++)
+	{
+		out << *(player.m_hand[i]) << '\n';
+	}
+	out << "Сумма всех карт игрока равна: " << player.GetValue() << '\n';
+	return out;
+};
 
 int main()
 {
@@ -139,6 +227,10 @@ int main()
 		}
 	}
 
+	//========================================================================================================================================
+	//Checks for other tasks
+	//========================================================================================================================================
+
 	{
 		std::cout << "first line" << endll;
 		std::cout << "second line" << std::endl;
@@ -148,8 +240,17 @@ int main()
 	{
 		Player p1("John");
 		std::cout << std::boolalpha << p1.IsHitting() << "\n";
-		std::cout << std::boolalpha << p1.IsHitting() << "\n";
 		House dealer;
+		Card c1(six, spades, 1);
+		Card c2(two, clubs, 1);
+		Card c3(queen, diamonds, 1);
+		p1.Add(&c1);
+		p1.Add(&c2);
+		p1.Add(&c3);
+		dealer.Add(&c1);
+		dealer.Add(&c3);
+		std::cout << p1;
+		std::cout << dealer;
 	}
 
 	
