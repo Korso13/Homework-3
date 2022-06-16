@@ -1,10 +1,39 @@
 #include <iostream>
-
+#include <string>
 
 //========================================================================================================================================
 //Task 1. 
 //========================================================================================================================================
-
+struct Person
+{
+	std::string name;
+	std::string surname;
+	optional<std::string>  middle_name;
+	std::ostream& operator<<(std::ostream& out, const Person& p1)
+	{
+		out << p1.surname << " " << p1.name << " ";
+		if(p1.middle_name.has_value())
+			out << *(p1.middle_name);
+		return out;
+	}
+	
+	bool operator==(const Person& p1, const Person& p2)
+	{
+		//probably needs rewriting via tie()
+		if( (p1.name == p2.name) && (p1.surname == p2.surname) && [p1, p2]() -> bool { if(p1.middle_name.has_value() && p2.middle_name.has_value()) if(*p1.middle_name == *p2.middle_name) return true; else return false;};)
+			return true;
+		else
+			return false;
+	}
+	
+	bool operator<(const Person& p1, const Person& p2)
+	{
+		if(tie(p1.name, p1.surname, p1.middle_name) < tie(p2.name, p2.surname, p2.middle_name)
+		   return true;
+		else
+		   return false;
+	}
+};
 
 //========================================================================================================================================
 //Task 2. 
