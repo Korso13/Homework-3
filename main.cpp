@@ -4,44 +4,29 @@
 #include <tuple>
 #include <vector>
 #include <fstream>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 //========================================================================================================================================
 //Task 1. Person structure
 //========================================================================================================================================
 struct Person
 {
-private:
-	std::optional<std::string> get_middle_name(const std::string& _middle_name) const
-	{
-		if (_middle_name.empty())
-			return std::nullopt;
-		else
-			return _middle_name;
-	}
-public:
 	std::string name;
 	std::string surname;
 	std::optional<std::string> middle_name;
 
-	Person(std::tuple<std::string, std::string, std::string> _person) : surname(get<0>(_person)), name(get<1>(_person))
-	{
-		middle_name = get_middle_name(get<2>(_person));
-	}
-
-	//Person(const std::string& _surname, const std::string& _name, const std::string& _middle_name) : name(_name), surname(_surname)
-	//{
-	//	middle_name = get_middle_name(_middle_name);
-	//}
-
-	//Person(const std::string& _name, const std::string& _surname) : name(_name), surname(_surname)
-	//{
-	//	middle_name = std::nullopt;
-	//}
+	Person(std::tuple<std::string, std::string, std::optional<std::string>> _person) : surname(std::get<0>(_person)), name(std::get<1>(_person)), middle_name(std::get<2>(_person)) {}
+	Person(std::string _surname, std::string _name, std::optional<std::string> _middle_name) : surname(_surname), name(_name), middle_name(_middle_name) {}
+	Person(std::string _surname, std::string _name) : surname(_surname), name(_name), middle_name(std::nullopt) {}
+	Person() { middle_name = std::nullopt;}
 };
 
 std::ostream& operator<<(std::ostream& out, const Person& p1)
 {
-	out << p1.name << " " << p1.surname << " ";
+	out << p1.surname << std::setw(20 - p1.surname.length());
+	out << p1.name << std::setw(15);
 	if (p1.middle_name.has_value())
 		out << *(p1.middle_name);
 	return out;
@@ -51,14 +36,14 @@ bool operator==(const Person& p1, const Person& p2)
 {
 	if (p1.middle_name.has_value() && p2.middle_name.has_value())
 	{
-		if (tie(p1.name, p1.surname, *p1.middle_name) == tie(p2.name, p2.surname, *p2.middle_name))
+		if (std::tie(p1.name, p1.surname, *p1.middle_name) == std::tie(p2.name, p2.surname, *p2.middle_name))
 			return true;
 		else
 			return false;
 	}
 	else
 	{
-		if (tie(p1.name, p1.surname) == tie(p2.name, p2.surname))
+		if (std::tie(p1.name, p1.surname) == std::tie(p2.name, p2.surname))
 			return true;
 		else
 			return false;
@@ -69,14 +54,14 @@ bool operator<(const Person& p1, const Person& p2)
 {
 	if (p1.middle_name.has_value() && p2.middle_name.has_value())
 	{
-		if (tie(p1.name, p1.surname, *p1.middle_name) < tie(p2.name, p2.surname, *p2.middle_name))
+		if (std::tie(p1.surname, p1.name, *p1.middle_name) < std::tie(p2.surname, p2.name, *p2.middle_name))
 			return true;
 		else
 			return false;
 	}
 	else
 	{
-		if (tie(p1.name, p1.surname) < tie(p2.name, p2.surname))
+		if (std::tie(p1.surname, p1.name ) < std::tie(p2.surname, p2.name))
 			return true;
 		else
 			return false;
@@ -89,34 +74,14 @@ bool operator<(const Person& p1, const Person& p2)
 
 struct PhoneNumber
 {
-private:
-	std::optional<int> get_extension(int _ext) const
-	{
-		if (_ext == 0)
-			return std::nullopt;
-		else
-			return _ext;
-	}
-public:
 	int country_code;
 	int city_code;
 	std::string number;
 	std::optional<int> extension;
 	
-	PhoneNumber(std::tuple<int, int, std::string, int> _number) : country_code(get<0>(_number)), city_code(get<1>(_number)), number(get<2>(_number))
-	{
-		extension = get_extension(get<3>(_number));
-	}
-	
-	//PhoneNumber(const int& _country_code, const int& _city_code, const std::string& _number, const int& _extention) : country_code(_country_code), city_code(_city_code), number(_number)
-	//{
-	//	extension = get_extension(_extention);
-	//}
-
-	//PhoneNumber(const int& _country_code, const int& _city_code, const std::string& _number) : country_code(_country_code), city_code(_city_code), number(_number)
-	//{
-	//	extension = get_extension(0);
-	//}
+	PhoneNumber(std::tuple<int, int, std::string, std::optional<int>> _number) : country_code(std::get<0>(_number)), city_code(std::get<1>(_number)), number(std::get<2>(_number)), extension(std::get<3>(_number))	{}
+	PhoneNumber(int _country_code, int _city_code, std::string _number, std::optional<int> _extension) : country_code(_country_code), city_code(_city_code), number(_number), extension(_extension) {}
+	PhoneNumber() { extension = std::nullopt; }
 };
 
 std::ostream& operator<<(std::ostream& out, const PhoneNumber& phone)
@@ -131,14 +96,14 @@ bool operator==(const PhoneNumber& phone1, const PhoneNumber& phone2)
 {
 	if (phone1.extension.has_value() && phone2.extension.has_value())
 	{
-		if (tie(phone1.country_code, phone1.city_code, phone1.number, *phone1.extension) == tie(phone2.country_code, phone2.city_code, phone2.number, *phone2.extension))
+		if (std::tie(phone1.country_code, phone1.city_code, phone1.number, *phone1.extension) == std::tie(phone2.country_code, phone2.city_code, phone2.number, *phone2.extension))
 			return true;
 		else
 			return false;
 	}
 	else
 	{
-		if (tie(phone1.country_code, phone1.city_code, phone1.number) == tie(phone2.country_code, phone2.city_code, phone2.number))
+		if (std::tie(phone1.country_code, phone1.city_code, phone1.number) == std::tie(phone2.country_code, phone2.city_code, phone2.number))
 			return true;
 		else
 			return false;
@@ -149,14 +114,14 @@ bool operator<(const PhoneNumber& phone1, const PhoneNumber& phone2)
 {
 	if (phone1.extension.has_value() && phone2.extension.has_value())
 	{
-		if (tie(phone1.country_code, phone1.city_code, phone1.number, *phone1.extension) < tie(phone2.country_code, phone2.city_code, phone2.number, *phone2.extension))
+		if (std::tie(phone1.country_code, phone1.city_code, phone1.number, *phone1.extension) < std::tie(phone2.country_code, phone2.city_code, phone2.number, *phone2.extension))
 			return true;
 		else
 			return false;
 	}
 	else
 	{
-		if (tie(phone1.country_code, phone1.city_code, phone1.number) < tie(phone2.country_code, phone2.city_code, phone2.number))
+		if (std::tie(phone1.country_code, phone1.city_code, phone1.number) < std::tie(phone2.country_code, phone2.city_code, phone2.number))
 			return true;
 		else
 			return false;
@@ -167,6 +132,16 @@ bool operator<(const PhoneNumber& phone1, const PhoneNumber& phone2)
 //Task 3. Phonebook class
 //========================================================================================================================================
 
+bool compareName(const std::pair<Person, PhoneNumber>& _person1, const std::pair<Person, PhoneNumber>& _person2)
+{
+	return _person1.first < _person2.first;
+}
+
+bool compareNumbers(const std::pair<Person, PhoneNumber>& _number1, const std::pair<Person, PhoneNumber>& _number2)
+{
+	return _number1.second < _number2.second;
+}
+
 class PhoneBook
 {
 private:
@@ -174,39 +149,98 @@ private:
 public:
 	PhoneBook(std::ifstream& _PB_File)
 	{
-		std::tuple<std::string, std::string, std::string> _person;
-		std::tuple<int, int, std::string, int> _number;
-		std::string name, surname, middle_name, number;
+		std::string name, surname, middle_name, number, line_dump;
 		int city_code, country_code, extention;
-		do
+		std::optional<std::string> opt_middle_name;
+		std::optional<int> opt_extention;
+		std::stringstream line_release;
+		do 
 		{
-			std::getline(_PB_File, surname);
-			std::getline(_PB_File, name);
-			std::getline(_PB_File, middle_name);
-			_PB_File >> country_code;
-			_PB_File >> city_code;
-			std::getline(_PB_File, number);
-			_PB_File >> extention;
+			std::getline(_PB_File, line_dump);
+			line_release.clear();
+			line_release << line_dump;
+			line_release >> surname;
+			line_release >> name;
+			line_release >> middle_name;
+			if (!(std::stringstream(middle_name) >> country_code))
+			{
+				opt_middle_name = middle_name;
+				line_release >> country_code;
+			}
+			else
+			{
+				opt_middle_name = std::nullopt;
+				std::stringstream(middle_name) >> country_code;
+			}
+			
+			line_release >> city_code;
+			line_release >> number;
+			if (!(line_release >> extention))
+				opt_extention = std::nullopt;
+			else
+				opt_extention = extention;
 
-			_person = tie(surname, name, middle_name);
-			_number = tie(country_code, city_code, number, extention);
-			Person person1(_person);
-			PhoneNumber phone1(_number);
-			Phone_Book.push_back(std::make_pair(person1, phone1));
-		} while (_PB_File.eof());
+			Phone_Book.push_back(std::make_pair(Person(std::tie(surname, name, opt_middle_name)), PhoneNumber(std::tie(country_code, city_code, number, opt_extention))));
+		} while (!_PB_File.eof());
 	}
 
+	void SortByName()
+	{
+		std::sort(Phone_Book.begin(), Phone_Book.end(), compareName); 
+	}
+
+	void SortByPhone()
+	{
+		std::sort(Phone_Book.begin(), Phone_Book.end(), compareNumbers); 
+	}
+
+	std::tuple<std::string, PhoneNumber> GetPhoneNumber(const std::string& _surname) const 
+	{
+		size_t count{ 0 };
+		PhoneNumber FoundNumber;
+
+		for (const auto& [person, number] : Phone_Book)
+		{
+			if (person.surname == _surname)
+			{
+				count++;
+				FoundNumber = number;
+			}
+		}
+
+		if (count == 1)
+			return { "", FoundNumber };
+		else if (count > 1)
+			return {"Found more than 1", FoundNumber };
+		else
+			return {"Not found", FoundNumber};
+	}
+
+	void ChangePhoneNumber(const Person& _person, const PhoneNumber& _number)
+	{
+		for (auto& [person, number] : Phone_Book)
+		{
+			if (person == _person)
+			{
+				number = _number;
+				return;
+			}
+		}
+		return;
+	}
+
+	friend std::ostream& operator<<(std::ostream& out, const PhoneBook& book);
 };
 
-//========================================================================================================================================
-//Task 4. 
-//========================================================================================================================================
-
-
-//========================================================================================================================================
-//Task 5. 
-//========================================================================================================================================
-
+std::ostream& operator<<(std::ostream& out, const PhoneBook& book)
+{
+	for (const auto& [person, number] : book.Phone_Book)
+	{
+		out << person << std::setw(((person.middle_name.has_value()) ? 5 : 20));
+		out << number << std::endl;
+	}
+	return out;
+}
 
 int main()
 {
@@ -225,7 +259,34 @@ int main()
 	if(p3 == p4)
 		std::cout << p3 << std::endl;*/
 
-
+	std::ifstream file("PhoneBook.txt"); // путь к файлу PhoneBook.txt
+	PhoneBook book(file);
+	std::cout << book;
+	std::cout << "------SortByPhone-------" << std::endl;
+	book.SortByPhone();
+	std::cout << book;
+	std::cout << "------SortByName--------" << std::endl;
+	book.SortByName();
+	std::cout << book;
+	std::cout << "-----GetPhoneNumber-----" << std::endl;
+	// лямбда функция, которая принимает фамилию и выводит номер телефона этого человека, либо строку с ошибкой
+	auto print_phone_number = [&book](const std::string& surname)
+	{
+		std::cout << surname << "\t";
+		auto answer = book.GetPhoneNumber(surname);
+		if (std::get<0>(answer).empty())
+			std::cout << std::get<1>(answer);
+		else
+			std::cout << std::get<0>(answer);
+		std::cout << std::endl;
+	};
+	// вызовы лямбды
+	print_phone_number("Ivanov");
+	print_phone_number("Petrov");
+	std::cout << "----ChangePhoneNumber----" << std::endl;
+	book.ChangePhoneNumber(Person{ "Kotov", "Vasilii", "Eliseevich" }, PhoneNumber{ 7, 123, "15344458", std::nullopt });
+	book.ChangePhoneNumber(Person{ "Mironova", "Margarita", "Vladimirovna" }, PhoneNumber{ 16, 465, "9155448", 13 });
+	std::cout << book;
 
 	return 0;
 }
