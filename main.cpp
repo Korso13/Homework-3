@@ -1,292 +1,269 @@
 ﻿#include <iostream>
-#include <string>
-#include <optional>
-#include <tuple>
 #include <vector>
-#include <fstream>
+#include <list>
+#include <deque>
 #include <algorithm>
-#include <sstream>
-#include <iomanip>
+#include "Expo.hpp"
+
+using namespace std;
 
 //========================================================================================================================================
-//Task 1. Person structure
+//Task 1. Add average of list members to list
 //========================================================================================================================================
-struct Person
-{
-	std::string name;
-	std::string surname;
-	std::optional<std::string> middle_name;
+/*
+Написать функцию, добавляющую в конец списка вещественных чисел элемент, значение которого равно среднему арифметическому всех его элементов.
+*/
 
-	Person(std::tuple<std::string, std::string, std::optional<std::string>> _person) : surname(std::get<0>(_person)), name(std::get<1>(_person)), middle_name(std::get<2>(_person)) {}
-	Person(std::string _surname, std::string _name, std::optional<std::string> _middle_name) : surname(_surname), name(_name), middle_name(_middle_name) {}
-	Person(std::string _surname, std::string _name) : surname(_surname), name(_name), middle_name(std::nullopt) {}
-	Person() { middle_name = std::nullopt;}
-};
-
-std::ostream& operator<<(std::ostream& out, const Person& p1)
+void AddAverageDouble(list<double>& _list)
 {
-	out << p1.surname << std::setw(20 - p1.surname.length());
-	out << p1.name << std::setw(15);
-	if (p1.middle_name.has_value())
-		out << *(p1.middle_name);
-	return out;
-}
-
-bool operator==(const Person& p1, const Person& p2)
-{
-	if (p1.middle_name.has_value() && p2.middle_name.has_value())
+	double sum{ 0.0 };
+	for (auto const& elem : _list)
 	{
-		if (std::tie(p1.name, p1.surname, *p1.middle_name) == std::tie(p2.name, p2.surname, *p2.middle_name))
-			return true;
-		else
-			return false;
+		sum += elem;
 	}
-	else
-	{
-		if (std::tie(p1.name, p1.surname) == std::tie(p2.name, p2.surname))
-			return true;
-		else
-			return false;
-	}
-}
-
-bool operator<(const Person& p1, const Person& p2)
-{
-	if (p1.middle_name.has_value() && p2.middle_name.has_value())
-	{
-		if (std::tie(p1.surname, p1.name, *p1.middle_name) < std::tie(p2.surname, p2.name, *p2.middle_name))
-			return true;
-		else
-			return false;
-	}
-	else
-	{
-		if (std::tie(p1.surname, p1.name ) < std::tie(p2.surname, p2.name))
-			return true;
-		else
-			return false;
-	}
+	_list.push_back((sum / _list.size()));
 }
 
 //========================================================================================================================================
-//Task 2. PhoneNumber structure
+//Task 2. Matrix determinant
 //========================================================================================================================================
+/*
+Создать класс, представляющий матрицу. Реализовать в нем метод, вычисляющий определитель матрицы. Для реализации используйте контейнеры из STL.
+*/
 
-struct PhoneNumber
-{
-	int country_code;
-	int city_code;
-	std::string number;
-	std::optional<int> extension;
-	
-	PhoneNumber(std::tuple<int, int, std::string, std::optional<int>> _number) : country_code(std::get<0>(_number)), city_code(std::get<1>(_number)), number(std::get<2>(_number)), extension(std::get<3>(_number))	{}
-	PhoneNumber(int _country_code, int _city_code, std::string _number, std::optional<int> _extension) : country_code(_country_code), city_code(_city_code), number(_number), extension(_extension) {}
-	PhoneNumber() { extension = std::nullopt; }
-};
-
-std::ostream& operator<<(std::ostream& out, const PhoneNumber& phone)
-{
-	out << "+" << phone.country_code << "(" << phone.city_code << ")" << phone.number;
-	if (phone.extension.has_value())
-		out << " " << * (phone.extension);
-	return out;
-}
-
-bool operator==(const PhoneNumber& phone1, const PhoneNumber& phone2)
-{
-	if (phone1.extension.has_value() && phone2.extension.has_value())
-	{
-		if (std::tie(phone1.country_code, phone1.city_code, phone1.number, *phone1.extension) == std::tie(phone2.country_code, phone2.city_code, phone2.number, *phone2.extension))
-			return true;
-		else
-			return false;
-	}
-	else
-	{
-		if (std::tie(phone1.country_code, phone1.city_code, phone1.number) == std::tie(phone2.country_code, phone2.city_code, phone2.number))
-			return true;
-		else
-			return false;
-	}
-}
-
-bool operator<(const PhoneNumber& phone1, const PhoneNumber& phone2)
-{
-	if (phone1.extension.has_value() && phone2.extension.has_value())
-	{
-		if (std::tie(phone1.country_code, phone1.city_code, phone1.number, *phone1.extension) < std::tie(phone2.country_code, phone2.city_code, phone2.number, *phone2.extension))
-			return true;
-		else
-			return false;
-	}
-	else
-	{
-		if (std::tie(phone1.country_code, phone1.city_code, phone1.number) < std::tie(phone2.country_code, phone2.city_code, phone2.number))
-			return true;
-		else
-			return false;
-	}
-}
-
-//========================================================================================================================================
-//Task 3. Phonebook class
-//========================================================================================================================================
-
-bool compareName(const std::pair<Person, PhoneNumber>& _person1, const std::pair<Person, PhoneNumber>& _person2)
-{
-	return _person1.first < _person2.first;
-}
-
-bool compareNumbers(const std::pair<Person, PhoneNumber>& _number1, const std::pair<Person, PhoneNumber>& _number2)
-{
-	return _number1.second < _number2.second;
-}
-
-class PhoneBook
+class Matrix
 {
 private:
-	std::vector<std::pair<Person, PhoneNumber>> Phone_Book;
-public:
-	PhoneBook(std::ifstream& _PB_File)
+	vector<vector<int>> m_matrix; //  m_matrix[строка].begin() + столбец -1 (А-строка-столбец)
+	int m_order{ 0 };
+	deque<int> ex_row;
+
+	int CalcDeterminant_Custom()
 	{
-		std::string name, surname, middle_name, number, line_dump;
-		int city_code, country_code, extention;
-		std::optional<std::string> opt_middle_name;
-		std::optional<int> opt_extention;
-		std::stringstream line_release;
-		do 
+		int Det{ 0 };
+		for (size_t i = 1; i <= m_order; i++)
+			Det += GetExpo(-1, (1 + i)) * *(m_matrix[0].begin() + i - 1) * CalcMinor((m_order - 1), 1, i-1);
+		return Det;
+	}
+
+	int CalcMinor(int _order, int _column_offset, int _ex_row)
+	{
+		ex_row.push_back(_ex_row);
+		if (_order == 3)
+			return CalcMinor_3x3(_column_offset);
+		else
+			return CalcMinor_Custom(_order, _column_offset);
+	}
+
+	int CalcMinor_Custom(int _order, int _column_offset)
+	{
+		int Minor{ 0 };
+		int temp_i{1};
+		int first_valid_row{0};
+		for (size_t i = 0; i < m_order; i++) //find first row available for Minor's calculation
 		{
-			std::getline(_PB_File, line_dump);
-			line_release.clear();
-			line_release << line_dump;
-			line_release >> surname;
-			line_release >> name;
-			line_release >> middle_name;
-			if (!(std::stringstream(middle_name) >> country_code))
-			{
-				opt_middle_name = middle_name;
-				line_release >> country_code;
-			}
+			if (find(ex_row.begin(), ex_row.end(), i) != ex_row.end())
+				continue;
+			else
+				{
+					first_valid_row = i;
+					break;
+				}
+		}
+
+		for (size_t i = 1; i <= _order; i++)	//i - прогоны Minor. i-1 - rows
+		{
+			if (find(ex_row.begin(), ex_row.end(), i-1) != ex_row.end())
+				continue;
 			else
 			{
-				opt_middle_name = std::nullopt;
-				std::stringstream(middle_name) >> country_code;
+				Minor += GetExpo(-1, (1 + temp_i)) * *(m_matrix[first_valid_row].begin() + (_column_offset + i - 1)) * CalcMinor((_order - 1), _column_offset + 1, i - 1);
+				temp_i++;
 			}
-			
-			line_release >> city_code;
-			line_release >> number;
-			if (!(line_release >> extention))
-				opt_extention = std::nullopt;
-			else
-				opt_extention = extention;
-
-			Phone_Book.push_back(std::make_pair(Person(std::tie(surname, name, opt_middle_name)), PhoneNumber(std::tie(country_code, city_code, number, opt_extention))));
-		} while (!_PB_File.eof());
+		}
+		ex_row.pop_back();
+		return Minor;
 	}
 
-	void SortByName()
+	int CalcMinor_3x3(int _column_offset)
 	{
-		std::sort(Phone_Book.begin(), Phone_Book.end(), compareName); 
-	}
-
-	void SortByPhone()
-	{
-		std::sort(Phone_Book.begin(), Phone_Book.end(), compareNumbers); 
-	}
-
-	std::tuple<std::string, PhoneNumber> GetPhoneNumber(const std::string& _surname) const 
-	{
-		size_t count{ 0 };
-		PhoneNumber FoundNumber;
-
-		for (const auto& [person, number] : Phone_Book)
+		int elemA{ 0 }, elemB{ 0 }, elemC{ 0 }, k{0}; // return a * (11*22 - 12*21) - b * (10*22 - 12*20) + c * (10*21 - 11*20)
+		vector<vector<int>> _matrix;
+		_matrix.reserve(3);
+		for (size_t i = 0; i < 3; i++)
 		{
-			if (person.surname == _surname)
+			_matrix.push_back(*(new vector<int>));
+		}
+		for (auto& elem : _matrix)
+			elem.reserve(3);
+
+		for (size_t i = 0; i < m_order; i++)
+		{
+			if (find(ex_row.begin(), ex_row.end(), i) != ex_row.end())
+				continue;
+			else
 			{
-				count++;
-				FoundNumber = number;
+				for (size_t j = _column_offset; j < m_order; j++)
+				{
+					_matrix[k].push_back(*(m_matrix[i].begin() + j));
+				}
+				k++;
 			}
 		}
 
-		if (count == 1)
-			return { "", FoundNumber };
-		else if (count > 1)
-			return {"Found more than 1", FoundNumber };
-		else
-			return {"Not found", FoundNumber};
+		elemB = *(_matrix[0].begin() + 1) * ((*(_matrix[1].begin() + 0) * *(_matrix[2].begin() + 2)) - (*(_matrix[1].begin() + 2) * *(_matrix[2].begin() + 0)));
+		elemA = *(_matrix[0].begin() + 0) * ((*(_matrix[1].begin() + 1) * *(_matrix[2].begin() + 2)) - (*(_matrix[1].begin() + 2) * *(_matrix[2].begin() + 1)));
+		elemC = *(_matrix[0].begin() + 2) * ((*(_matrix[1].begin() + 0) * *(_matrix[2].begin() + 1)) - (*(_matrix[1].begin() + 1) * *(_matrix[2].begin() + 0)));
+		ex_row.pop_back();
+		return (elemA - elemB + elemC);
 	}
 
-	void ChangePhoneNumber(const Person& _person, const PhoneNumber& _number)
+	int CalcDeterminant_3x3()
 	{
-		for (auto& [person, number] : Phone_Book)
+		int elemA{0}, elemB{0}, elemC{0}; // return a * (11*22 - 12*21) - b * (10*22 - 12*20) + c * (10*21 - 11*20)
+		elemA = *(m_matrix[0].begin() + 0) * ((*(m_matrix[1].begin() + 1)** (m_matrix[2].begin() + 2)) - (*(m_matrix[1].begin() + 2) * *(m_matrix[2].begin() + 1)));
+		elemB = *(m_matrix[0].begin() + 1) * ((*(m_matrix[1].begin() + 0) * *(m_matrix[2].begin() + 2)) - (*(m_matrix[1].begin() + 2) * *(m_matrix[2].begin() + 0)));
+		elemC = *(m_matrix[0].begin() + 2) * ((*(m_matrix[1].begin() + 0) * *(m_matrix[2].begin() + 1)) - (*(m_matrix[1].begin() + 1) * *(m_matrix[2].begin() + 0)));
+		return (elemA - elemB + elemC);
+	}
+
+	int CalcDeterminant_2x2()
+	{
+		return ( (*(m_matrix[1].begin()) * *(m_matrix[2].end() - 1)) - (*(m_matrix[2].begin()) * *(m_matrix[1].end() - 1)));
+	}
+
+	int CalcDeterminant_1x1()
+	{
+		return *(m_matrix[1].begin());
+	}
+
+public:
+	Matrix(int _order)
+	{
+		m_matrix.reserve(_order);
+		for (size_t i = 0; i < _order; i++)
 		{
-			if (person == _person)
+			m_matrix.push_back(*(new vector<int>));
+		}
+		for (auto& elem : m_matrix)
+			elem.reserve(_order);
+		m_order = _order;
+	}
+
+	void AddMatrixValue(int row, int _value)
+	{
+		if (m_matrix[row - 1].size() != m_matrix[row - 1].capacity())
+			m_matrix[row-1].push_back(_value);
+		else
+			cout << "Row already full!" << endl;
+	}
+
+	void ForceAddMatrixValue(int row, int _value)
+	{
+		m_matrix[row - 1].push_back(_value);
+		if (row == 1)
+			if (m_matrix[row].capacity() != m_matrix[row - 1].capacity())
 			{
-				number = _number;
+				for (auto& elem : m_matrix)
+					m_matrix.resize(m_matrix[row].capacity());
 				return;
 			}
-		}
-		return;
+			else
+				do {} while (false) ;
+		else if(row != 1)
+			if (m_matrix[row - 2].capacity() != m_matrix[row - 1].capacity())
+			{
+				for (auto& elem : m_matrix)
+					m_matrix.resize(m_matrix[row].capacity());
+				return;
+			}
 	}
 
-	friend std::ostream& operator<<(std::ostream& out, const PhoneBook& book);
+	int CalcDeterminant()
+	{
+		if (m_order == 1)
+			return CalcDeterminant_1x1();
+		if (m_order == 2)
+			return CalcDeterminant_2x2();
+		if (m_order == 3)
+			return CalcDeterminant_3x3();
+		else
+			return CalcDeterminant_Custom();
+	}
+
+	void print() const
+	{
+		for (auto const& elem1 : m_matrix)
+		{
+			cout << endl;
+			for (auto const& elem2 : elem1)
+				cout << elem2 << " ";
+		}
+	}
 };
 
-std::ostream& operator<<(std::ostream& out, const PhoneBook& book)
-{
-	for (const auto& [person, number] : book.Phone_Book)
-	{
-		out << person << std::setw(((person.middle_name.has_value()) ? 5 : 20));
-		out << number << std::endl;
-	}
-	return out;
-}
+//========================================================================================================================================
+//Task 3. 
+//========================================================================================================================================
+/*
+Реализовать собственный класс итератора, с помощью которого можно будет проитерироваться по диапазону целых чисел в цикле for-range-based.
+*/
+
+
 
 int main()
 {
 	system("chcp 1251");
 	
-	/*Person p1("John", "Smith", "Vanger");
-	Person p2("Smith", "Smith", "Vanger");
-	Person p3("Mike", "Smith");
-	Person p4("Mike", "Smith", "Vanger");
-	if (p1 < p2)
-		std::cout << p1 << std::endl;
-	else
-		std::cout << p2 << std::endl;
-	std::cout << p3 << std::endl;
+	//========================================================================================================================================
+	//Task 1. Add average of list members to list
+	//========================================================================================================================================
 
-	if(p3 == p4)
-		std::cout << p3 << std::endl;*/
 
-	std::ifstream file("PhoneBook.txt"); // путь к файлу PhoneBook.txt
-	PhoneBook book(file);
-	std::cout << book;
-	std::cout << "------SortByPhone-------" << std::endl;
-	book.SortByPhone();
-	std::cout << book;
-	std::cout << "------SortByName--------" << std::endl;
-	book.SortByName();
-	std::cout << book;
-	std::cout << "-----GetPhoneNumber-----" << std::endl;
-	// лямбда функция, которая принимает фамилию и выводит номер телефона этого человека, либо строку с ошибкой
-	auto print_phone_number = [&book](const std::string& surname)
 	{
-		std::cout << surname << "\t";
-		auto answer = book.GetPhoneNumber(surname);
-		if (std::get<0>(answer).empty())
-			std::cout << std::get<1>(answer);
-		else
-			std::cout << std::get<0>(answer);
-		std::cout << std::endl;
-	};
-	// вызовы лямбды
-	print_phone_number("Ivanov");
-	print_phone_number("Petrov");
-	std::cout << "----ChangePhoneNumber----" << std::endl;
-	book.ChangePhoneNumber(Person{ "Kotov", "Vasilii", "Eliseevich" }, PhoneNumber{ 7, 123, "15344458", std::nullopt });
-	book.ChangePhoneNumber(Person{ "Mironova", "Margarita", "Vladimirovna" }, PhoneNumber{ 16, 465, "9155448", 13 });
-	std::cout << book;
+		list<double> DoubleList{ 3.14, 5.23, 2.43, 3.15 };
+		AddAverageDouble(DoubleList);
+		for (auto const& elem : DoubleList)
+			cout << elem << " ";
+		cout << endl; 
+	}
 
+	//========================================================================================================================================
+	//Task 2. Matrix determinant
+	//========================================================================================================================================
+	cout << endl;
+
+	{
+		Matrix M1(3);
+		M1.AddMatrixValue(1, 1);
+		M1.AddMatrixValue(1, 2);
+		M1.AddMatrixValue(1, 3);
+		M1.AddMatrixValue(2, 4);
+		M1.AddMatrixValue(2, 5);
+		M1.AddMatrixValue(2, 6);
+		M1.AddMatrixValue(3, 7);
+		M1.AddMatrixValue(3, 8);
+		M1.AddMatrixValue(3, 9);
+		M1.print();
+		cout << endl << "M1 determinant is: " << M1.CalcDeterminant() << endl;
+
+		Matrix M2(4);
+		for (size_t i = 1; i <= 4; i++)
+		{
+			for (size_t j = 0; j < 4; j++)
+			{
+				M2.AddMatrixValue(i, rand() % 9);
+			}
+		}
+		M2.print();
+		cout << endl << "M2 determinant is: " << M2.CalcDeterminant() << endl;
+	}
+
+	//========================================================================================================================================
+	//Task 3. 
+	//========================================================================================================================================
+	cout << endl;
+	
+	
 	return 0;
 }
