@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <deque>
+#include <cstdarg>
 #include <algorithm>
 #include "Expo.hpp"
 
@@ -10,9 +11,6 @@ using namespace std;
 //========================================================================================================================================
 //Task 1. Add average of list members to list
 //========================================================================================================================================
-/*
-Написать функцию, добавляющую в конец списка вещественных чисел элемент, значение которого равно среднему арифметическому всех его элементов.
-*/
 
 void AddAverageDouble(list<double>& _list)
 {
@@ -27,9 +25,6 @@ void AddAverageDouble(list<double>& _list)
 //========================================================================================================================================
 //Task 2. Matrix determinant
 //========================================================================================================================================
-/*
-Создать класс, представляющий матрицу. Реализовать в нем метод, вычисляющий определитель матрицы. Для реализации используйте контейнеры из STL.
-*/
 
 class Matrix
 {
@@ -203,12 +198,93 @@ public:
 };
 
 //========================================================================================================================================
-//Task 3. 
+//Task 3. Custom iterator for for-range-based loop
 //========================================================================================================================================
-/*
-Реализовать собственный класс итератора, с помощью которого можно будет проитерироваться по диапазону целых чисел в цикле for-range-based.
-*/
 
+class MyArrayIt
+{
+private:
+	int* ptr = nullptr;
+	int posShift;
+	size_t m_size{ 0 };
+public:
+	MyArrayIt(int* array, size_t _size, size_t _shift) : ptr(array), m_size(_size) { posShift = _shift; };
+
+	bool operator!=(const MyArrayIt& _second_ptr)
+	{
+		if ((ptr + posShift) == (_second_ptr.ptr + _second_ptr.posShift))
+			return false;
+		else
+			return true;
+	}
+
+	void operator++()
+	{
+		if(posShift != m_size)
+			posShift++;
+	}
+
+	int operator*()
+	{
+		return *(ptr + posShift);
+	}
+};
+
+template <size_t _size>
+class MyIntArrContainer
+{
+private:
+	int* startPTR = nullptr;
+	size_t m_size{ 0 };
+public:
+	MyIntArrContainer(...) : m_size(_size)
+	{
+		startPTR = new int[m_size];
+		va_list intValues;
+		va_start(intValues, m_size);
+		for (size_t i = 0; i < m_size; i++)
+		{
+			*(startPTR + i) = va_arg(intValues, int);
+		}
+		va_end(intValues);
+	}
+
+	MyArrayIt begin()
+	{
+		if(startPTR != nullptr)
+			return MyArrayIt(startPTR, m_size, 0);
+	}
+
+	MyArrayIt end()
+	{
+		if (startPTR != nullptr)
+			return MyArrayIt(startPTR, m_size, m_size);
+	}
+
+	/*
+	MyArrayIt at(size_t _shift)
+	{
+		if (startPTR != nullptr)
+			return MyArrayIt(startPTR, m_size, _shift);
+	}
+	
+	void print() const
+	{
+		cout << endl;
+		if (startPTR != nullptr)
+		{
+			for (size_t i = 0; i < m_size; i++)
+			{
+				cout << *(startPTR + i) << " ";
+			}
+			cout << endl;
+			return;
+		}
+		else
+			return;
+	}
+	*/
+};
 
 
 int main()
@@ -218,7 +294,6 @@ int main()
 	//========================================================================================================================================
 	//Task 1. Add average of list members to list
 	//========================================================================================================================================
-
 
 	{
 		list<double> DoubleList{ 3.14, 5.23, 2.43, 3.15 };
@@ -263,7 +338,12 @@ int main()
 	//Task 3. 
 	//========================================================================================================================================
 	cout << endl;
-	
-	
+	MyIntArrContainer<5> Arr1{ 1,2,3,4,5 };
+	for (const auto& elem : Arr1)
+		cout << elem << " ";
+	cout << endl;
+
+	/*auto it1 = Arr1.at(2);
+	cout << *it1 << endl;*/
 	return 0;
 }
