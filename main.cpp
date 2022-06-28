@@ -29,60 +29,54 @@ void AddAverageDouble(list<double>& _list)
 class Matrix
 {
 private:
-	vector<vector<int>> m_matrix; //  m_matrix[строка].begin() + столбец -1 (А-строка-столбец)
+	vector<vector<int>> m_matrix; //  m_matrix[row - 1].begin() + column -1
 	int m_order{ 0 };
-	deque<int> ex_row;
+	deque<int> ex_column;
 
 	int CalcDeterminant_Custom()
 	{
 		int Det{ 0 };
 		for (size_t i = 1; i <= m_order; i++)
-			Det += GetExpo(-1, (1 + i)) * *(m_matrix[0].begin() + i - 1) * CalcMinor((m_order - 1), 1, i-1);
+		{
+			Det += GetExpo(-1, (1 + i)) * *(m_matrix[0].begin() + i - 1) * CalcMinor((m_order - 1), 1, i - 1);
+			if(ex_column.empty() == false)
+				ex_column.pop_back();
+		}
 		return Det;
 	}
 
-	int CalcMinor(int _order, int _column_offset, int _ex_row)
+	int CalcMinor(int _order, int _row_offset, int _ex_column)
 	{
-		ex_row.push_back(_ex_row);
+		ex_column.push_back(_ex_column);
 		if (_order == 3)
-			return CalcMinor_3x3(_column_offset);
+			return CalcMinor_3x3(_row_offset);
 		else
-			return CalcMinor_Custom(_order, _column_offset);
+			return CalcMinor_Custom(_order, _row_offset);
 	}
 
-	int CalcMinor_Custom(int _order, int _column_offset)
+	int CalcMinor_Custom(int _order, int _row_offset)
 	{
 		int Minor{ 0 };
-		int temp_i{1};
-		int first_valid_row{0};
-		for (size_t i = 0; i < m_order; i++) //find first row available for Minor's calculation
-		{
-			if (find(ex_row.begin(), ex_row.end(), i) != ex_row.end())
-				continue;
-			else
-				{
-					first_valid_row = i;
-					break;
-				}
-		}
+		int temp_i{ 1 };
 
-		for (size_t i = 1; i <= _order; i++)	//i - прогоны Minor. i-1 - rows
+		for (size_t i = 1; i <= m_order; i++)	//i - прогоны Minor. i-1 - columns
 		{
-			if (find(ex_row.begin(), ex_row.end(), i-1) != ex_row.end())
+			if (find(ex_column.begin(), ex_column.end(), i - 1) != ex_column.end())
 				continue;
 			else
 			{
-				Minor += GetExpo(-1, (1 + temp_i)) * *(m_matrix[first_valid_row].begin() + (_column_offset + i - 1)) * CalcMinor((_order - 1), _column_offset + 1, i - 1);
+				Minor += GetExpo(-1, (1 + temp_i)) * *(m_matrix[_row_offset].begin() + (i - 1)) * CalcMinor((_order - 1), _row_offset + 1, i - 1);
 				temp_i++;
+				ex_column.pop_back();
 			}
 		}
-		ex_row.pop_back();
+		ex_column.pop_back();
 		return Minor;
 	}
 
-	int CalcMinor_3x3(int _column_offset)
+	int CalcMinor_3x3(int _row_offset)
 	{
-		int elemA{ 0 }, elemB{ 0 }, elemC{ 0 }, k{0}; // return a * (11*22 - 12*21) - b * (10*22 - 12*20) + c * (10*21 - 11*20)
+		int elemA{ 0 }, elemB{ 0 }, elemC{ 0 }, k{ 0 }; // return a * (11*22 - 12*21) - b * (10*22 - 12*20) + c * (10*21 - 11*20)
 		vector<vector<int>> _matrix;
 		_matrix.reserve(3);
 		for (size_t i = 0; i < 3; i++)
@@ -92,15 +86,15 @@ private:
 		for (auto& elem : _matrix)
 			elem.reserve(3);
 
-		for (size_t i = 0; i < m_order; i++)
+		for (size_t i = _row_offset; i < m_order; i++)
 		{
-			if (find(ex_row.begin(), ex_row.end(), i) != ex_row.end())
-				continue;
-			else
 			{
-				for (size_t j = _column_offset; j < m_order; j++)
+				for (size_t j = 0; j < m_order; j++)
 				{
-					_matrix[k].push_back(*(m_matrix[i].begin() + j));
+					if (find(ex_column.begin(), ex_column.end(), j) != ex_column.end()) //if found then
+						continue;
+					else //if not found
+						_matrix[k].push_back(*(m_matrix[i].begin() + j));
 				}
 				k++;
 			}
@@ -109,7 +103,7 @@ private:
 		elemB = *(_matrix[0].begin() + 1) * ((*(_matrix[1].begin() + 0) * *(_matrix[2].begin() + 2)) - (*(_matrix[1].begin() + 2) * *(_matrix[2].begin() + 0)));
 		elemA = *(_matrix[0].begin() + 0) * ((*(_matrix[1].begin() + 1) * *(_matrix[2].begin() + 2)) - (*(_matrix[1].begin() + 2) * *(_matrix[2].begin() + 1)));
 		elemC = *(_matrix[0].begin() + 2) * ((*(_matrix[1].begin() + 0) * *(_matrix[2].begin() + 1)) - (*(_matrix[1].begin() + 1) * *(_matrix[2].begin() + 0)));
-		ex_row.pop_back();
+
 		return (elemA - elemB + elemC);
 	}
 
@@ -322,10 +316,10 @@ int main()
 		M1.print();
 		cout << endl << "M1 determinant is: " << M1.CalcDeterminant() << endl;
 
-		Matrix M2(4);
-		for (size_t i = 1; i <= 4; i++)
+		Matrix M2(5);
+		for (size_t i = 1; i <= 5; i++)
 		{
-			for (size_t j = 0; j < 4; j++)
+			for (size_t j = 5; j > 0; j--)
 			{
 				M2.AddMatrixValue(i, rand() % 9);
 			}
