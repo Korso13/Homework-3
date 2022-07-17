@@ -147,7 +147,16 @@ namespace NoProtoBuf
 			}
 
 			stringstream return_string;
-			return_string << "Студент " << m_group.student_group(index).name().surname() << " " << m_group.student_group(index).name().name() << " " << ((m_group.student_group(index).name().has_middle_name()) ? (m_group.student_group(index).name().middle_name()) : ("")) << " имеет среднюю оценку " << m_group.student_group(index).average_mark() << "\n";
+			return_string << "Студент " << m_group.student_group(index).name().surname() << " " << m_group.student_group(index).name().name() << " " << ((m_group.student_group(index).name().has_middle_name()) ? (m_group.student_group(index).name().middle_name()) : ("")) << " имеет следующие оценки: ";
+			for (size_t i = 0; i < m_group.student_group(index).marks_size(); i++)
+			{
+				return_string << " " << m_group.student_group(index).marks(i);
+				if (i + 1 == m_group.student_group(index).marks_size())
+					return_string << ". ";
+				else
+					return_string << ",";
+			}
+			return_string << "Средний балл равен: " << m_group.student_group(index).average_mark() << "\n";
 			return return_string.str();
 		}
 
@@ -162,7 +171,16 @@ namespace NoProtoBuf
 
 			for (size_t index = 0; index < m_group.student_group_size(); index++)
 			{
-				return_string << "Студент " << m_group.student_group(index).name().surname() << " " << m_group.student_group(index).name().name() << " " << ((m_group.student_group(index).name().has_middle_name()) ? (m_group.student_group(index).name().middle_name()) : ("")) << " имеет среднюю оценку " << m_group.student_group(index).average_mark() << "\n";
+				return_string << "Студент " << m_group.student_group(index).name().surname() << " " << m_group.student_group(index).name().name() << " " << ((m_group.student_group(index).name().has_middle_name()) ? (m_group.student_group(index).name().middle_name()) : ("")) << " имеет следующие оценки: ";
+				for (size_t i = 0; i < m_group.student_group(index).marks_size(); i++)
+				{
+					return_string << " " << m_group.student_group(index).marks(i);
+					if (i + 1 == m_group.student_group(index).marks_size())
+						return_string << ". ";
+					else
+						return_string << ",";
+				}
+				return_string  << "Средний балл равен: " << m_group.student_group(index).average_mark() << "\n";
 			}
 
 			return return_string.str();
